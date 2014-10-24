@@ -40,7 +40,7 @@ returned.
 The API
 =======
 
-   results = WorkQueue.start_link(work_processor, item_source, options \\ [])
+    results = WorkQueue.start_link(work_processor, item_source, options \\ [])
 
 
 * `work_processor` is a function that transforms an item from the work
