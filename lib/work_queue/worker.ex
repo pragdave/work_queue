@@ -1,11 +1,17 @@
 defmodule WorkQueue.Worker do
 
-  use GenServer
+  use     GenServer
+  require Logger
 
   #######
   # API #
   #######
-  
+
+ 
+  def start_link(params, scheduler_pid, my_index) do
+    GenServer.start_link(__MODULE__, %{params: params, scheduler_pid: scheduler_pid})
+  end
+   
   def process(me, work_item) do
     GenServer.cast(me, {:process, work_item})
   end
@@ -13,21 +19,21 @@ defmodule WorkQueue.Worker do
   ##################
   # Implementation #
   ##################
-  
-  def init(state = [params, scheduler_pid]) do
-    send(scheduler_pid, {:send_work, self})
+
+  def init(state) do
+    send(state.scheduler_pid, {:send_work, self})
     { :ok, state }
   end
 
   def handle_cast({:process, nil}, state) do
     send(state.scheduler_pid, { :shutdown, self })
-    { :stop, :normal, state }
+    { :noreply, state }
   end
 
   def handle_cast({:process, work_item}, state = %{ params: params }) do
-    result = params.worker_fn(work_item, params.opts.worker_args)
-    send(params.scheduler_pid, { :processed, self, result})
+    {:ok, result} = params.worker_fn.(work_item, params.opts.worker_args)
+    send(state.scheduler_pid, { :processed, self, {:ok, {work_item, result}}})
     { :noreply, state }
   end
-  
+
 end
