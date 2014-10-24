@@ -8,7 +8,7 @@ Each worker requests the next item to process from the queue. When it
 finishes processing, it reports the result back and then requests the
 next item of work.
 
-The itent is that we do not need a central control point which
+The intent is that we do not need a central control point which
 preassigns work—that is done dynamically by the workers.
 
 This has a couple of advantages. First, it locally maximizes CPU
@@ -43,13 +43,13 @@ The API
    results = WorkQueue.start_link(work_processor, item_source, options \\ [])
 
 
-* `work_processor` is a function tht transforms an item from the work
+* `work_processor` is a function that transforms an item from the work
   queue. It receives a value, and returns either `{:ok, result}` or
   `{:error, reason}`
 
-* `item_source` is the fata representing the source of the items to be
-  processed. In the simplest case, this is just an enumerable.
-  Successive items are taken from it and fed to the workers.
+* `item_source` is the source of the items to be processed. In the
+  simplest case, this is just an enumerable. Successive items are
+  taken from it and fed to the workers.
 
   In other situations, you may need to perform additional processing
   in order to generate the items. In particular, the item source may
@@ -100,3 +100,6 @@ The API
      `false` (the default).
      
   
+
+<!--  LocalWords:  WorkQueue
+ -->
