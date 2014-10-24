@@ -21,8 +21,7 @@ defmodule WorkQueueTest do
     {time, results} = :timer.tc fn ->
        WorkQueue.start_link(
         &sleep/2, 
-        [ 100, 10, 10, 10, 50, 10, 10 ],
-        &traverse_list/1
+        [ 100, 10, 10, 10, 50, 10, 10 ]
       )
     end
     assert length(results) == 7
@@ -33,9 +32,8 @@ defmodule WorkQueueTest do
     WorkQueue.start_link(
       &double/2,        # worker
       [ 1, 2, 3 ],      # work items to process
-      &traverse_list/1,
       report_each_result_to:
-      fn {input, output} -> assert(output == input*2) end
+        fn {input, output} -> assert(output == input*2) end
     )
   end
 

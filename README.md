@@ -76,6 +76,7 @@ The API
      of running the calculation on that item. Its return value is
      ignored.
 
+         ```` 
          test "notifications of results" do
            WorkQueue.start_link(
              &double/2,
@@ -84,7 +85,8 @@ The API
                fn {input, output} -> assert(output == input*2) end
            )
          end
-  
+         ````
+         
   * `report_progress_to:` _func_, `report_progress_interval:` _ms_
 
      Invoke `func` to report progress. It is passed
@@ -94,7 +96,7 @@ The API
        the total number of items processed so far
      * `{:finished,` _results_`}` reported when processing finishes
 
-     Progress reporting is diabled when `report_progress_interval` is
+     Progress reporting is disabled when `report_progress_interval` is
      `false` (the default).
      
   
