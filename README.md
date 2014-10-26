@@ -1,4 +1,5 @@
-= WorkQueue
+WorkQueue
+=========
 
 A simple implementation of the _hungry consumer_ work scheduling model.
 
@@ -17,8 +18,8 @@ the queue.
 Second, it offers a degree of resilience, both against CPU hogging
 work items and against worker failure.
 
-== Simple Example
-
+Simple Example
+--------------
 
     results = WorkQueue.start_link(
       fn val -> { :ok, val*2 },   # worker function
