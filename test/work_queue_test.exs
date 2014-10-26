@@ -7,8 +7,7 @@ defmodule WorkQueueTest do
   test "basic queue" do
     results = WorkQueue.start_link(
       &double/2,        # worker
-      [ 1, 2, 3 ],      # work items to process
-      &traverse_list/1
+      [ 1, 2, 3 ]       # work items to process
     )
     assert length(results) == 3
     for {input, output} <- results, do: assert(output == input * 2)
@@ -25,7 +24,7 @@ defmodule WorkQueueTest do
       )
     end
     assert length(results) == 7
-    assert time < 120_000 
+    assert time < 120_000
   end
 
   test "notifications of results" do
@@ -37,6 +36,24 @@ defmodule WorkQueueTest do
     )
   end
 
+  test "periodic notifications" do
+    {:ok, memory} = Agent.start_link(fn -> [] end)
+    WorkQueue.start_link(
+      &sleep/2,       
+      [ 10, 10, 100, 100, 100 ],
+      report_progress_interval: 20,
+      report_progress_to:
+        fn report ->
+          Agent.update(memory, fn mem ->  [report|mem] end)
+        end
+    )
+    [last | reports] = Agent.get(memory, &(&1))
+    assert { :finished, _results } = last
+    [ first | ticks ] = Enum.reverse reports
+    assert { :started, nil } = first
+    assert { :progress, _n } = hd(ticks)
+  end
+
   
   defp double(value, _) do 
     { :ok, value * 2 }
@@ -45,8 +62,5 @@ defmodule WorkQueueTest do
   defp sleep(interval, _) do
     { :ok, :timer.sleep(interval) }
   end
-  
-  defp traverse_list([]),    do: {nil, []}
-  defp traverse_list([h|t]), do: {h, t}
 
 end

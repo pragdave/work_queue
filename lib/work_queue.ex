@@ -6,21 +6,22 @@ defmodule WorkQueue do
   
   alias WorkQueue.Options
   
-  def start_link(worker_fn, work_to_process, get_next_item_fn, extra_opts \\ []) do
+  @doc File.read!("README.md")
+
+  def start_link(worker_fn, item_source, extra_opts \\ []) do
     pipe_while_ok do
-      package_parameters(worker_fn, work_to_process, get_next_item_fn, extra_opts)
+      package_parameters(worker_fn, item_source, extra_opts)
       |> Options.analyze
       |> start_workers
-      |> schedule_work
+      |> schedule_work 
     end
   end
 
-  defp package_parameters(worker_fn, work_to_process, get_next_item_fn, extra_opts) do
+  defp package_parameters(worker_fn, item_source, extra_opts) do
     { :ok,
       %{
           worker_fn:        worker_fn,
-          work_to_process:  work_to_process,
-          get_next_item_fn: get_next_item_fn,
+          item_source:  item_source,
           opts:             extra_opts,
           results:          [],
           running_workers:  0,
@@ -33,7 +34,7 @@ defmodule WorkQueue do
   end
 
   defp schedule_work(params) do
-    params.opts.report_progress_to.({:starting})
+    params.opts.report_progress_to.({:started, nil})
     
     params = Dict.put(params, :running_workers, params.opts.worker_count)
 
@@ -58,15 +59,15 @@ defmodule WorkQueue do
   defp loop(params) do
     receive do
       { :send_work, worker } ->
-        {params, next_item} = get_next_item(params)
-        WorkQueue.Worker.process(worker, next_item)
+        {status, params, next_item} = get_next_item(params)
+        WorkQueue.Worker.process(worker, status, next_item)
         loop(params)
 
       { :processed, worker, { :ok, result } } ->
         params = update_in(params[:results], &[result|&1])
         params.opts.report_each_result_to.(result)
-        {params, next_item} = get_next_item(params)
-        WorkQueue.Worker.process(worker, next_item)
+        {status, params, next_item} = get_next_item(params)
+        WorkQueue.Worker.process(worker, status, next_item)
         loop(params)
 
       { :shutdown, _worker } ->
@@ -90,8 +91,8 @@ defmodule WorkQueue do
 
 
   defp get_next_item(params) do
-    {item, new_state}  = params.get_next_item_fn.(params.work_to_process)
-    {Dict.put(params, :work_to_process, new_state), item}
+    {status, item, new_state}  = params.opts.get_next_item.(params.item_source)
+    {status, Dict.put(params, :item_source, new_state), item}
   end
   
 end

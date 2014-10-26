@@ -1,5 +1,4 @@
-WorkQueue
-=========
+= WorkQueue
 
 A simple implementation of the _hungry consumer_ work scheduling model.
 
@@ -18,8 +17,8 @@ the queue.
 Second, it offers a degree of resilience, both against CPU hogging
 work items and against worker failure.
 
-Simple Example
-==============
+== Simple Example
+
 
     results = WorkQueue.start_link(
       fn val -> { :ok, val*2 },   # worker function
@@ -44,7 +43,7 @@ The API
 
 
 * `work_processor` is a function that transforms an item from the work
-  queue. It receives a value, and returns either `{:ok, result}` or
+    queue. It receives a value, and returns either `{:ok, result}` or
   `{:error, reason}`
 
 * `item_source` is the source of the items to be processed. In the
@@ -69,6 +68,23 @@ The API
      former creates a worker for each processing unit, the latter
      creates 10 workers per processing unit.
 
+  *  `get_next_item: ` _func_
+
+     The function that fetches the next item to be given to a worker.
+     It initially receives `item_source` as its parameter. It returns
+     a three element tuple. The first element is `:ok` if an item has
+     been returned, or `:done` otherwise. The second element is the
+     item to be returned, and the third is the updated item source
+     state.
+
+     The default value of `get_next_item` for list values of the item
+     source is
+
+         ```
+         defp traverse_list([]),    do: {:done, nil, []}
+         defp traverse_list([h|t]), do: {:ok,   h,   t}
+         ```
+         
   * `report_each_result_to: ` _func_
 
      Invoke `func` as each result becomes available. The function
@@ -99,7 +115,4 @@ The API
      Progress reporting is disabled when `report_progress_interval` is
      `false` (the default).
      
-  
-
-<!--  LocalWords:  WorkQueue
- -->
+ 
