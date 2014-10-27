@@ -8,7 +8,7 @@ defmodule WorkQueue do
   
   @doc File.read!("README.md")
 
-  def start_link(worker_fn, item_source, extra_opts \\ []) do
+  def process(worker_fn, item_source, extra_opts \\ []) do
     pipe_while_ok do
       package_parameters(worker_fn, item_source, extra_opts)
       |> Options.analyze
@@ -21,14 +21,14 @@ defmodule WorkQueue do
     { :ok,
       %{
           worker_fn:        worker_fn,
-          item_source:  item_source,
+          item_source:      item_source,
           opts:             extra_opts,
           results:          [],
           running_workers:  0,
        }
     }
   end
-    
+
   defp start_workers(params) do
     WorkQueue.WorkerSupervisor.start_link(params)
   end
@@ -74,6 +74,8 @@ defmodule WorkQueue do
         if params.running_workers > 1 do
           loop(%{params | running_workers: params.running_workers - 1})
         else
+          Process.flag(:trap_exit, true)
+          Process.exit(params.supervisor_pid, :shutdown)
           params.results
         end
 
@@ -81,11 +83,6 @@ defmodule WorkQueue do
         params.opts.report_progress_to.({:progress, length(params.results)})
         loop(params)
 
-      other ->
-        Logger.error("Unknown message in work queue scheduler: #{inspect other}")
-
-    after  3000 ->
-        Logger.error("Receive timeout")
     end
   end
 

@@ -5,7 +5,7 @@ defmodule WorkQueueTest do
   @tag timeout: 5000
   
   test "basic queue" do
-    results = WorkQueue.start_link(
+    results = WorkQueue.process(
       &double/2,        # worker
       [ 1, 2, 3 ]       # work items to process
     )
@@ -18,7 +18,7 @@ defmodule WorkQueueTest do
   # than 100mS
   test "scheduling is hungry" do
     {time, results} = :timer.tc fn ->
-       WorkQueue.start_link(
+       WorkQueue.process(
         &sleep/2, 
         [ 100, 10, 10, 10, 50, 10, 10 ]
       )
@@ -28,7 +28,7 @@ defmodule WorkQueueTest do
   end
 
   test "notifications of results" do
-    WorkQueue.start_link(
+    WorkQueue.process(
       &double/2,        # worker
       [ 1, 2, 3 ],      # work items to process
       report_each_result_to:
@@ -38,7 +38,7 @@ defmodule WorkQueueTest do
 
   test "periodic notifications" do
     {:ok, memory} = Agent.start_link(fn -> [] end)
-    WorkQueue.start_link(
+    WorkQueue.process(
       &sleep/2,       
       [ 10, 10, 100, 100, 100 ],
       report_progress_interval: 20,

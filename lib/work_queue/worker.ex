@@ -27,7 +27,7 @@ defmodule WorkQueue.Worker do
 
   def handle_cast({:process, :done, _item}, state) do
     send(state.scheduler_pid, { :shutdown, self })
-    { :noreply, state }
+    { :stop, :normal, state }
   end
 
   def handle_cast({:process, :ok, work_item}, state = %{ params: params }) do

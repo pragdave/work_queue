@@ -21,7 +21,7 @@ work items and against worker failure.
 Simple Example
 --------------
 
-    results = WorkQueue.start_link(
+    results = WorkQueue.process(
       fn val -> { :ok, val*2 },   # worker function
       [ 1, 2, 3 ]                 # work items to process
     )
@@ -40,7 +40,7 @@ returned.
 The API
 =======
 
-    results = WorkQueue.start_link(work_processor, item_source, options \\ [])
+    results = WorkQueue.process(work_processor, item_source, options \\ [])
 
 
 * `work_processor` is a function that transforms an item from the work
@@ -95,7 +95,7 @@ The API
 
          ```` 
          test "notifications of results" do
-           WorkQueue.start_link(
+           WorkQueue.process(
              &double/2,
              [ 1, 2, 3 ],
              report_each_result_to:
