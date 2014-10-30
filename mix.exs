@@ -3,7 +3,7 @@ defmodule WorkQueue.Mixfile do
 
   def project do
     [app:         :work_queue,
-     version:     "0.0.1",
+     version:     "0.0.3",
      elixir:      ">= 1.0.0",
      deps:        deps,
      description: description,

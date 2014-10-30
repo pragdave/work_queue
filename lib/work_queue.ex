@@ -77,7 +77,8 @@ defmodule WorkQueue do
     receive do
       :tick ->
         params.opts.report_progress_to.({:progress, length(params.results)})
-        loop(params, running, max)
+        wait_for_answers(params, running, max)
+              
       { :processed, worker, { :ok, result } } ->
         if worker in running do
           params = update_in(params.results, &[result|&1])
