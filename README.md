@@ -22,7 +22,7 @@ Simple Example
 --------------
 
     results = WorkQueue.process(
-      fn val -> { :ok, val*2 },   # worker function
+      fn val -> { :ok, val*2 } end,   # worker function
       [ 1, 2, 3 ]                 # work items to process
     )
 
