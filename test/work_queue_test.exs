@@ -13,6 +13,15 @@ defmodule WorkQueueTest do
     for {input, output} <- results, do: assert(output == input * 2)
   end
 
+  test "basic queue with anon function" do
+    results = WorkQueue.process(
+      fn (val, _) -> {:ok, val*2} end,
+      [ 1, 2, 3 ]
+    )
+    assert length(results) == 3
+    for {input, output} <- results, do: assert(output == input * 2)
+  end
+  
   # one worker waits for 100mS. Meanwhile the other two workers
   # process the rest. The elapsed time shouldn't be much more
   # than 100mS
