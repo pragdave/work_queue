@@ -1,6 +1,7 @@
 defmodule WorkQueue do
 
-  use PipeWhileOk
+  use Exlibris.PipeWhileOk
+  use Exlibris.BeforeReturning
 
   require Logger
 
@@ -41,16 +42,17 @@ defmodule WorkQueue do
                 loop(params, [], params.opts.worker_count)
               end
 
-    params.opts.report_progress_to.({:finished, results})
-    results
+    before_returning results do
+      results -> params.opts.report_progress_to.({:finished, results})
+    end      
   end
 
   defp loop_with_ticker(params, running, max) do
     {:ok, ticker} = :timer.send_interval(params.opts.report_progress_interval,
                                          self, :tick)
-    count = loop(params, running, max)
-    :timer.cancel(ticker)
-    count
+    before_returning loop(params, running, max) do
+      _ -> :timer.cancel(ticker)
+    end
   end
 
   defp loop(params, running, max) when length(running) < max do

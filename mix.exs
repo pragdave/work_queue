@@ -17,7 +17,7 @@ defmodule WorkQueue.Mixfile do
 
   defp deps do
     [
-        pipe_while_ok: ">0.0.0"
+        exlibris: ">0.0.0"
     ]
   end
 
