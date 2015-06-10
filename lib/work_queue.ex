@@ -9,7 +9,7 @@ defmodule WorkQueue do
 
   @doc File.read!("README.md")
 
-  def process(worker_fn, item_source, extra_opts \\ []) do
+  def process(item_source, worker_fn, extra_opts \\ []) do
     pipe_while_ok do
       package_parameters(worker_fn, item_source, extra_opts)
       |> Options.analyze
