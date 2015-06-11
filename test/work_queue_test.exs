@@ -56,6 +56,43 @@ defmodule WorkQueueTest do
     assert { :progress, _n } = hd(ticks)
   end
 
+  test "scale up worker pool" do
+    {:ok, memory} = Agent.start_link(fn -> [] end)
+    [ 12, 12, 12 ]
+      |> WorkQueue.process(
+        &sleep/2,
+        update_worker_count:
+          fn _, _, max ->
+            Agent.update(memory, fn mem -> [max|mem] end)
+            {:ok, 10}
+          end,
+        worker_count: 1,
+        update_worker_count_interval: 10
+      )
+    
+    updates = Agent.get(memory, &(&1))
+    # If a second process didn't spawn, then the result would be 3.
+    assert 2 = Enum.count(updates)
+  end
+  
+  test "scale down worker pool" do
+    {:ok, memory} = Agent.start_link(fn -> [] end)
+    [ 12, 12, 12, 12 ]
+      |> WorkQueue.process(
+        &sleep/2,
+        update_worker_count:
+          fn _, _, max ->
+            Agent.update(memory, fn mem -> [max|mem] end)
+            {:ok, 1}
+          end,
+        worker_count: 2,
+        update_worker_count_interval: 10
+      )
+    
+    updates = Agent.get(memory, &(&1))
+    # If we didn't scale down, this could complete in 2 updates.
+    assert 3 = Enum.count(updates)
+  end
   
   defp double(value, _) do 
     { :ok, value * 2 }

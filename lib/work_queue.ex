@@ -39,7 +39,7 @@ defmodule WorkQueue do
     results = if params.opts.report_progress_interval do
                 loop_with_ticker(params, [], params.opts.worker_count)
               else
-                loop(params, [], params.opts.worker_count)
+                start_loop(params, [], params.opts.worker_count)
               end
 
     before_returning results do
@@ -50,6 +50,14 @@ defmodule WorkQueue do
   defp loop_with_ticker(params, running, max) do
     {:ok, ticker} = :timer.send_interval(params.opts.report_progress_interval,
                                          self, :tick)
+    before_returning start_loop(params, running, max) do
+      _ -> :timer.cancel(ticker)
+    end
+  end
+
+  defp start_loop(params, running, max) do
+    {:ok, ticker} = :timer.send_interval(params.opts.update_worker_count_interval,
+                                         self, :update_worker_count)
     before_returning loop(params, running, max) do
       _ -> :timer.cancel(ticker)
     end
@@ -80,7 +88,15 @@ defmodule WorkQueue do
       :tick ->
         params.opts.report_progress_to.({:progress, length(params.results)})
         wait_for_answers(params, running, max)
-              
+      
+      :update_worker_count ->
+        case params.opts.update_worker_count.(params, running, max) do
+          {:ok, n} when is_integer(n) and n > max and length(running) < n and n > 0 ->
+            loop(params, running, n)
+          {:ok, n} when is_integer(n) and n > 0 ->
+            wait_for_answers(params, running, n)
+        end
+        
       { :processed, worker, { :ok, result } } ->
         if worker in running do
           params = update_in(params.results, &[result|&1])
