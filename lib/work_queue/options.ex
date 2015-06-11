@@ -12,13 +12,15 @@ defmodule WorkQueue.Options do
   
   defp default_options do
     %{
-        worker_count:             round(processing_units*0.667),
-        report_each_result_to:    fn _ -> end,
-        report_progress_to:       fn _ -> end,
-        report_progress_interval: false,
-        worker_args:              [],
-        item_source:              [],
-        get_next_item:            false
+        worker_count:                 round(processing_units*0.667),
+        report_each_result_to:        fn _ -> end,
+        report_progress_to:           fn _ -> end,
+        report_progress_interval:     false,
+        worker_args:                  [],
+        item_source:                  [],
+        get_next_item:                false,
+        update_worker_count:          fn _, _, max -> max end,
+        update_worker_count_interval: 1000
      }
   end
   
@@ -57,7 +59,15 @@ defmodule WorkQueue.Options do
 
   defp option({:worker_count, :io_bound}, result),
   do:  option({:worker_count, 10.0}, result)
+
+  defp option({:update_worker_count, func}, result)
+  when is_function(func),
+  do:  update(result, :update_worker_count, func)
   
+  defp option({:update_worker_count_interval, n}, result)
+  when is_integer(n),
+  do:  update(result, :update_worker_count_interval, n)
+
   defp option({option, value}, _result) do
     { :error, "Invalid option [ #{option}: #{inspect value} ] to #{__MODULE__}" }
   end

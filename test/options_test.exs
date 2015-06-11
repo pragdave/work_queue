@@ -111,4 +111,17 @@ defmodule OptionsTest do
     assert {:done, _, work=[]}         = get_next_item.(work)
     assert {:done, _, _work=[]}        = get_next_item.(work)
   end
+
+  test "can override update_worker_count function" do
+    callback = fn _ -> 10 end
+    given  = params(opts: [ update_worker_count: callback ])
+    assert {:ok, %{opts: opts}} = analyze(given, default_options)
+    assert Dict.delete(opts, :get_next_item) == default_options(update_worker_count: callback)
+  end
+  
+  test "can override update_worker_count_interval" do
+    given  = params(opts: [ update_worker_count_interval: 2000 ])
+    assert {:ok, %{opts: opts}} = analyze(given, default_options)
+    assert Dict.delete(opts, :get_next_item) == default_options(update_worker_count_interval: 2000)
+  end
 end
