@@ -2,17 +2,20 @@ defmodule WorkQueue.Mixfile do
   use Mix.Project
 
   def project do
-    [app:         :work_queue,
-     version:     "0.0.3",
-     elixir:      ">= 1.0.0",
-     deps:        deps,
-     description: description,
-     package:     package,
+    [
+      app:         :work_queue,
+      version:     "0.0.3",
+      elixir:      ">= 1.0.0",
+      deps:        deps(),
+      description: description(),
+      package:     package(),
     ]
   end
 
   def application do
-    [applications: [:logger]]
+    [
+      applications: [:logger]
+    ]
   end
 
   defp deps do

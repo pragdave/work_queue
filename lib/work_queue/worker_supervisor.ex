@@ -1,8 +1,8 @@
 defmodule WorkQueue.WorkerSupervisor do
   require Logger
-  
+
   def start_link(params) do
     { :ok, supervisor_pid } = Task.Supervisor.start_link()
-    { :ok, Dict.put(params, :supervisor_pid, supervisor_pid) }
+    { :ok, Map.put(params, :supervisor_pid, supervisor_pid) }
   end
 end

@@ -44,7 +44,7 @@ defmodule WorkQueue do
 
     before_returning results do
       results -> params.opts.report_progress_to.({:finished, results})
-    end      
+    end
   end
 
   defp loop_with_ticker(params, running, max) do
@@ -80,7 +80,7 @@ defmodule WorkQueue do
       :tick ->
         params.opts.report_progress_to.({:progress, length(params.results)})
         wait_for_answers(params, running, max)
-              
+
       { :processed, worker, { :ok, result } } ->
         if worker in running do
           params = update_in(params.results, &[result|&1])
@@ -93,6 +93,6 @@ defmodule WorkQueue do
 
   defp get_next_item(params) do
     {status, item, new_state}  = params.opts.get_next_item.(params.item_source)
-    {status, Dict.put(params, :item_source, new_state), item}
+    {status, Map.put(params, :item_source, new_state), item}
   end
 end
