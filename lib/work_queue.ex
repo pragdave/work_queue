@@ -49,7 +49,7 @@ defmodule WorkQueue do
 
   defp loop_with_ticker(params, running, max) do
     {:ok, ticker} = :timer.send_interval(params.opts.report_progress_interval,
-                                         self, :tick)
+                                         self(), :tick)
     before_returning loop(params, running, max) do
       _ -> :timer.cancel(ticker)
     end

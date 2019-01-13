@@ -5,7 +5,7 @@ defmodule WorkQueue.Mixfile do
     [
       app:         :work_queue,
       version:     "0.0.3",
-      elixir:      ">= 1.0.0",
+      elixir:      ">= 1.6.0",
       deps:        deps(),
       description: description(),
       package:     package(),
