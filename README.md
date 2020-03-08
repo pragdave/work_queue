@@ -83,10 +83,10 @@ results = WorkQueue.process(work_processor, item_source, options \\ [])
      The default value of `get_next_item` for list values of the item
      source is
 
-```elixir
+  ```elixir
      defp traverse_list([]),    do: {:done, nil, []}
      defp traverse_list([h|t]), do: {:ok,   h,   t}
-```
+  ```
          
   * `report_each_result_to: ` _func_
 
@@ -94,8 +94,8 @@ results = WorkQueue.process(work_processor, item_source, options \\ [])
      receives a tuple containing the original work item and the result
      of running the calculation on that item. Its return value is
      ignored.
-
-```elixir
+  
+  ```elixir
      test "notifications of results" do
        WorkQueue.process(
          &double/2,
@@ -104,7 +104,7 @@ results = WorkQueue.process(work_processor, item_source, options \\ [])
            fn {input, output} -> assert(output == input*2) end
        )
      end
-```
+  ```
          
   * `report_progress_to:` _func_, `report_progress_interval:` _ms_
 
