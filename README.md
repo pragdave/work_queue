@@ -21,14 +21,15 @@ work items and against worker failure.
 Simple Example
 --------------
 
-    results = WorkQueue.process(
-      fn (val,_) -> { :ok, val*2 } end,   # worker function
-      [ 1, 2, 3 ]                         # work items to process
-    )
+```elixir
+results = WorkQueue.process(
+  fn (val,_) -> { :ok, val*2 } end,   # worker function
+  [ 1, 2, 3 ]                         # work items to process
+)
 
-    assert length(results) == 3
-    for {input, output} <- results, do: assert(output == input * 2)
-
+assert length(results) == 3
+for {input, output} <- results, do: assert(output == input * 2)
+```
 
 This code will allocate a number of workers (the default is 2/3rds of
 the available processing units in the node). Each worker then runs
@@ -40,8 +41,9 @@ returned.
 The API
 =======
 
-    results = WorkQueue.process(work_processor, item_source, options \\ [])
-
+```elixir
+results = WorkQueue.process(work_processor, item_source, options \\ [])
+```
 
 * `work_processor` is a function that transforms an item from the work
     queue. It receives a value, and returns either `{:ok, result}` or
@@ -81,10 +83,10 @@ The API
      The default value of `get_next_item` for list values of the item
      source is
 
-         ```
-         defp traverse_list([]),    do: {:done, nil, []}
-         defp traverse_list([h|t]), do: {:ok,   h,   t}
-         ```
+```elixir
+     defp traverse_list([]),    do: {:done, nil, []}
+     defp traverse_list([h|t]), do: {:ok,   h,   t}
+```
          
   * `report_each_result_to: ` _func_
 
@@ -93,16 +95,16 @@ The API
      of running the calculation on that item. Its return value is
      ignored.
 
-         ```` 
-         test "notifications of results" do
-           WorkQueue.process(
-             &double/2,
-             [ 1, 2, 3 ],
-             report_each_result_to:
-               fn {input, output} -> assert(output == input*2) end
-           )
-         end
-         ````
+```elixir
+     test "notifications of results" do
+       WorkQueue.process(
+         &double/2,
+         [ 1, 2, 3 ],
+         report_each_result_to:
+           fn {input, output} -> assert(output == input*2) end
+       )
+     end
+```
          
   * `report_progress_to:` _func_, `report_progress_interval:` _ms_
 
